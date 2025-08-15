@@ -28,11 +28,14 @@ func encodeBase62(num uint64) string {
 		return string(alphabet[0])
 	}
 
-	result := make([]byte, 0, 16)
-	for num > 0 {
+	const maxLen = 16
+	var result [maxLen]byte
+	i := maxLen - 1
+
+	for ; num > 0; i-- {
 		rem := num % base
-		result = append([]byte{alphabet[rem]}, result...)
+		result[i] = alphabet[rem]
 		num /= base
 	}
-	return string(result)
+	return string(result[i+1:])
 }
