@@ -63,3 +63,14 @@ func TestGeneratorConcurrency(t *testing.T) {
 		t.Fatalf("Expected %d unique IDs, got %d", n, len(seen))
 	}
 }
+
+func BenchmarkGenerate(b *testing.B) {
+	g := New(1000)
+
+	for b.Loop() {
+		s := g.Next()
+		if s == "" {
+			b.Fail()
+		}
+	}
+}
