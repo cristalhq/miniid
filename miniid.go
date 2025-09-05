@@ -2,6 +2,11 @@ package miniid
 
 import "sync/atomic"
 
+// Encode number in base62.
+func Encode(n uint64) string {
+	return encodeBase62(n)
+}
+
 // Generator can encode integers into base62 strings.
 type Generator struct {
 	currID atomic.Int64

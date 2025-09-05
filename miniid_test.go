@@ -21,13 +21,21 @@ func TestGenerator(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		g := New(tc.num)
+		start := tc.num
+		g := New(start)
 
-		for i, expected := range tc.want {
-			got := g.Next()
-			if got != expected {
-				t.Errorf("Starting at %d, call #%d: expected %s, got '%s'",
-					tc.num, i+1, expected, got)
+		next := start
+		for i, want := range tc.want {
+			next++
+
+			have := g.Next()
+			if have != want {
+				t.Errorf("Start at %d, call #%d: want %s, have '%s'",
+					tc.num, i+1, want, have)
+			}
+
+			if s := Encode(next); s != have {
+				t.Errorf("call #%d: want %s, have '%s'", i+1, want, have)
 			}
 		}
 	}
@@ -60,7 +68,7 @@ func TestGeneratorConcurrency(t *testing.T) {
 	}
 
 	if len(seen) != n {
-		t.Fatalf("Expected %d unique IDs, got %d", n, len(seen))
+		t.Fatalf("want %d unique IDs, have %d", n, len(seen))
 	}
 }
 
