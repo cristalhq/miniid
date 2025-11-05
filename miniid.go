@@ -7,6 +7,11 @@ func Encode(n uint64) string {
 	return encodeBase62(n)
 }
 
+// EncodeFixed number in base62.
+func EncodeFixed(n uint64, length int) string {
+	return encodeFixedBase62(n, length)
+}
+
 // Generator can encode integers into base62 strings.
 type Generator struct {
 	currID atomic.Int64
@@ -43,4 +48,16 @@ func encodeBase62(num uint64) string {
 		num /= base
 	}
 	return string(result[i+1:])
+}
+
+func encodeFixedBase62(num uint64, length int) string {
+	const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	const base = uint64(len(alphabet))
+
+	buf := make([]byte, length)
+	for i := length - 1; i >= 0; i-- {
+		buf[i] = alphabet[num%base]
+		num /= base
+	}
+	return string(buf)
 }
