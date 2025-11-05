@@ -5,6 +5,63 @@ import (
 	"testing"
 )
 
+func TestEncode(t *testing.T) {
+	testCases := []struct {
+		num  uint64
+		want string
+	}{
+		{0, "0"},
+		{1, "1"},
+		{2, "2"},
+		{61, "z"},
+		{62, "10"},
+		{62 * 61, "z0"},
+		{100, "1c"},
+		{62*62 - 2, "zy"},
+		{62*62*62 - 2, "zzy"},
+		{62*62*62 - 1, "zzz"},
+		{1<<64 - 3, "LygHa16AHYD"},
+	}
+
+	for _, tc := range testCases {
+		have := Encode(tc.num)
+
+		if have != tc.want {
+			t.Errorf("Start at %d want %s, have '%s'",
+				tc.num, tc.want, have)
+		}
+	}
+}
+
+func TestEncodeFixed(t *testing.T) {
+	testCases := []struct {
+		num    uint64
+		length int
+		want   string
+	}{
+		{0, 7, "0000000"},
+		{1, 7, "0000001"},
+		{2, 7, "0000002"},
+		{61, 7, "000000z"},
+		{62, 7, "0000010"},
+		{62 * 61, 7, "00000z0"},
+		{100, 7, "000001c"},
+		{62*62 - 2, 7, "00000zy"},
+		{62*62*62 - 2, 7, "0000zzy"},
+		{62*62*62 - 1, 7, "0000zzz"},
+		{1<<64 - 3, 7, "a16AHYD"},
+	}
+
+	for _, tc := range testCases {
+		have := EncodeFixed(tc.num, tc.length)
+
+		if have != tc.want {
+			t.Errorf("Start at %d want %s, have '%s'",
+				tc.num, tc.want, have)
+		}
+	}
+}
+
 func TestGenerator(t *testing.T) {
 	testCases := []struct {
 		num  uint64
