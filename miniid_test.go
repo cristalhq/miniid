@@ -62,6 +62,20 @@ func TestEncodeFixed(t *testing.T) {
 	}
 }
 
+func TestEncodeDecode(t *testing.T) {
+	tests := []uint64{
+		0, 1, 10, 61, 62, 12345, 999999, 405160095143, 1<<63 - 1,
+	}
+
+	for _, n := range tests {
+		enc := Encode(n)
+		dec := Decode(enc)
+		if dec != n {
+			t.Fatalf("Encode/Decode failed for %d: got %d (encoded: %s)", n, dec, enc)
+		}
+	}
+}
+
 func TestGenerator(t *testing.T) {
 	testCases := []struct {
 		num  uint64
