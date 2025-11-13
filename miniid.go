@@ -2,6 +2,22 @@ package miniid
 
 import "sync/atomic"
 
+const (
+	Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	base     = uint64(len(Alphabet))
+)
+
+var index = func() [256]int {
+	var index [256]int
+	for i := range index {
+		index[i] = -1
+	}
+	for i, c := range Alphabet {
+		index[c] = i
+	}
+	return index
+}()
+
 // Encode number in base62.
 func Encode(n uint64) string {
 	return encodeBase62(n)
@@ -10,6 +26,20 @@ func Encode(n uint64) string {
 // EncodeFixed number in base62.
 func EncodeFixed(n uint64, length int) string {
 	return encodeFixedBase62(n, length)
+}
+
+// Decode converts a base62-encoded string back into a uint64 number.
+// It panics if the input contains characters not in the base62 alphabet.
+func Decode(s string) uint64 {
+	var n uint64
+	for i := 0; i < len(s); i++ {
+		val := index[s[i]]
+		if val < 0 {
+			panic("invalid base62 character")
+		}
+		n = n*base + uint64(val)
+	}
+	return n
 }
 
 // Generator can encode integers into base62 strings.
@@ -31,11 +61,8 @@ func (g *Generator) Next() string {
 }
 
 func encodeBase62(num uint64) string {
-	const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	const base = uint64(len(alphabet))
-
 	if num == 0 {
-		return string(alphabet[0])
+		return string(Alphabet[0])
 	}
 
 	const maxLen = 16
@@ -44,19 +71,16 @@ func encodeBase62(num uint64) string {
 
 	for ; num > 0; i-- {
 		rem := num % base
-		result[i] = alphabet[rem]
+		result[i] = Alphabet[rem]
 		num /= base
 	}
 	return string(result[i+1:])
 }
 
 func encodeFixedBase62(num uint64, length int) string {
-	const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-	const base = uint64(len(alphabet))
-
 	buf := make([]byte, length)
 	for i := length - 1; i >= 0; i-- {
-		buf[i] = alphabet[num%base]
+		buf[i] = Alphabet[num%base]
 		num /= base
 	}
 	return string(buf)
